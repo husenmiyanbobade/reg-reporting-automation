@@ -24,6 +24,19 @@
     .badge-pending { background: #fff3cd; color: #856404; }
     .badge-rejected { background: #f8d7da; color: #721c24; }
     #no-results { display: none; color: #888; padding: 20px; text-align: center; }
+    [title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-top: -30px;
+    margin-left: 10px;
+}
+[title] { position: relative; }
   </style>
 </head>
 <body>
@@ -120,10 +133,16 @@
             <td>${r.type}</td>
             <td>${r.period}</td>
             <td>${r.by}</td>
-            <td><span class="badge ${badgeClass}" data-testid="status-${r.id}">${r.status}</span></td>
+            <td><span class="badge ${badgeClass}" data-testid="status-${r.id}" title="Click to view audit trail for ${r.id}">${r.status}</span></td>
           </tr>`;
       });
     }
+
+    document.getElementById('report-id').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+              document.getElementById('search-btn').click();
+          }
+    });
 
     document.getElementById('search-btn').addEventListener('click', () => {
       const id = document.getElementById('report-id').value.trim().toLowerCase();
