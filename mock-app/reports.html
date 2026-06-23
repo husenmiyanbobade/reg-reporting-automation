@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Regulatory Reports - Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+    .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    h2 { color: #1a3c5e; margin-top: 0; }
+    .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; min-width: 180px; }
+    label { font-weight: bold; font-size: 13px; color: #444; }
+    input, select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    .btn { padding: 9px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .btn-primary { background: #1a3c5e; color: white; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #1a3c5e; color: white; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid #eee; }
+    tr:hover { background: #f9f9f9; }
+    .badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .badge-submitted { background: #d4edda; color: #155724; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-rejected { background: #f8d7da; color: #721c24; }
+    #no-results { display: none; color: #888; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>📊 Regulatory Reporting Portal</span>
+    <span id="logged-in-user">Welcome, Report Administrator</span>
+  </div>
+
+  <div class="container">
+    <h2>Search Reports</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="report-id">Report ID</label>
+        <input type="text" id="report-id" placeholder="e.g. RPT-001" data-testid="report-id-input"/>
+      </div>
+      <div class="form-group">
+        <label for="report-type">Report Type</label>
+        <select id="report-type" data-testid="report-type-select">
+          <option value="">-- Select Type --</option>
+          <option value="EMIR">EMIR</option>
+          <option value="MiFID">MiFID II</option>
+          <option value="CCAR">CCAR</option>
+          <option value="Basel">Basel III</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" data-testid="status-select">
+          <option value="">-- All Statuses --</option>
+          <option value="Submitted">Submitted</option>
+          <option value="Pending">Pending</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="from-date">From Date</label>
+        <input type="date" id="from-date" data-testid="from-date-input"/>
+      </div>
+      <div class="form-group">
+        <label for="to-date">To Date</label>
+        <input type="date" id="to-date" data-testid="to-date-input"/>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-primary" id="search-btn" data-testid="search-btn">Search</button>
+      <button class="btn btn-secondary" id="reset-btn" data-testid="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Results <span id="result-count"></span></h2>
+    <table id="reports-table" data-testid="reports-table">
+      <thead>
+        <tr>
+          <th>Report ID</th>
+          <th>Report Type</th>
+          <th>Filing Period</th>
+          <th>Submitted By</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="report-results">
+      </tbody>
+    </table>
+    <div id="no-results">No reports found matching your criteria.</div>
+  </div>
+
+  <script>
+    const allReports = [
+      { id: 'RPT-001', type: 'EMIR', period: 'Q1 2024', by: 'john.smith', status: 'Submitted' },
+      { id: 'RPT-002', type: 'MiFID', period: 'Q1 2024', by: 'sara.jones', status: 'Pending' },
+      { id: 'RPT-003', type: 'CCAR', period: 'Q4 2023', by: 'mike.brown', status: 'Rejected' },
+      { id: 'RPT-004', type: 'Basel', period: 'Q2 2024', by: 'john.smith', status: 'Submitted' },
+      { id: 'RPT-005', type: 'EMIR', period: 'Q2 2024', by: 'sara.jones', status: 'Pending' },
+    ];
+
+    function renderResults(data) {
+      const tbody = document.getElementById('report-results');
+      const noResults = document.getElementById('no-results');
+      const countEl = document.getElementById('result-count');
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        noResults.style.display = 'block';
+        countEl.textContent = '(0)';
+        return;
+      }
+      noResults.style.display = 'none';
+      countEl.textContent = `(${data.length})`;
+      data.forEach(r => {
+        const badgeClass = r.status === 'Submitted' ? 'badge-submitted' : r.status === 'Pending' ? 'badge-pending' : 'badge-rejected';
+        tbody.innerHTML += `
+          <tr data-testid="report-row-${r.id}">
+            <td>${r.id}</td>
+            <td>${r.type}</td>
+            <td>${r.period}</td>
+            <td>${r.by}</td>
+            <td><span class="badge ${badgeClass}" data-testid="status-${r.id}">${r.status}</span></td>
+          </tr>`;
+      });
+    }
+
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const id = document.getElementById('report-id').value.trim().toLowerCase();
+      const type = document.getElementById('report-type').value;
+      const status = document.getElementById('status').value;
+      const filtered = allReports.filter(r => {
+        return (!id || r.id.toLowerCase().includes(id)) &&
+               (!type || r.type === type) &&
+               (!status || r.status === status);
+      });
+      renderResults(filtered);
+    });
+
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      document.getElementById('report-id').value = '';
+      document.getElementById('report-type').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('from-date').value = '';
+      document.getElementById('to-date').value = '';
+      document.getElementById('report-results').innerHTML = '';
+      document.getElementById('result-count').textContent = '';
+      document.getElementById('no-results').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
