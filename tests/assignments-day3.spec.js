@@ -1,3 +1,6 @@
+// Day 3 Assignments - Actions, Keyboard, Reset, JS Variables
+// Branch: day3-actions-practice
+
 const {test, expect} = require('@playwright/test');
 
 const BASE_URL = 'file://' + __dirname.replace(/\\/g, '/') + '/../mock-app/';
