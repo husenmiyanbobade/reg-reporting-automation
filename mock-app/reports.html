@@ -144,6 +144,12 @@
           }
     });
 
+    document.getElementById('report-type').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('search-btn').click();
+        }
+      });
+
     document.getElementById('search-btn').addEventListener('click', () => {
       const id = document.getElementById('report-id').value.trim().toLowerCase();
       const type = document.getElementById('report-type').value;
