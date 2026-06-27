@@ -11,7 +11,7 @@ async function searchByReportId(page, reportId) {
 //Helper function - reusable navigation
 async function goToReportsPage(page) {
     await page.goto(`${BASE_URL}/reports.html`);
-}    
+}
 
 //Helper Function - Reusable Search by Report Type
 
@@ -19,7 +19,6 @@ async function searchByReportType(page, type) {
     await page.getByLabel('Report Type').selectOption(type)
     await page.getByRole('button', {name : 'Search'}).click();       
 }
-
 
 describe('Search Reports — Regulatory Reporting Portal', () => {
 
@@ -167,4 +166,3 @@ describe('Reset Functionality — Regulatory Reporting Portal', () => {
         await expect(page.getByLabel('Status')).toHaveValue('');
      });
 });
-
