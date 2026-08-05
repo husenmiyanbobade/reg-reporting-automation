@@ -79,6 +79,15 @@
         <label for="to-date">To Date</label>
         <input type="date" id="to-date" data-testid="to-date-input"/>
       </div>
+      <div class="form-group">
+        <label for="jurisdiction">Jurisdiction</label>
+        <select id="jurisdiction" data-testid="jurisdiction-select" multiple size="4">
+          <option value="EU">European Union</option>
+          <option value="UK">United Kingdom</option>
+          <option value="US">United States</option>
+          <option value="APAC">Asia Pacific</option>
+        </select>
+      </div>
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-primary" id="search-btn" data-testid="search-btn">Search</button>
@@ -149,6 +158,28 @@
           document.getElementById('search-btn').click();
         }
       });
+      
+      const jurisdictionsByType = {
+        'EMIR': ['EU', 'UK'],
+        'MiFID': ['EU', 'UK'],
+        'CCAR': ['US'],
+        'Basel': ['EU', 'UK', 'US', 'APAC']
+      };
+
+      document.getElementById('report-type').addEventListener('change', (e) => {
+        const selectedType = e.target.value;
+        const jurisdictionSelect = document.getElementById('jurisdiction');
+        const allOptions = jurisdictionSelect.querySelectorAll('option');
+
+        allOptions.forEach(option => {
+          if (!selectedType || jurisdictionsByType[selectedType]?.includes(option.value)) {
+            option.disabled = false;
+          } else {
+            option.disabled = true;
+            option.selected = false;
+          }
+        });
+      });  
 
     document.getElementById('search-btn').addEventListener('click', () => {
       const id = document.getElementById('report-id').value.trim().toLowerCase();
