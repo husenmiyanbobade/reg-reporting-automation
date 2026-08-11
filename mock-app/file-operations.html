@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Reports - File Operations</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+  .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  h2 { color: #1a3c5e; margin-top: 0; }
+  input[type="file"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+  .btn { padding: 9px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 12px; }
+  .btn-primary { background: #1a3c5e; color: white; }
+  #upload-status { margin-top: 14px; padding: 10px 14px; border-radius: 4px; display: none; }
+  #upload-status.success { background: #d4edda; color: #155724; display: block; }
+  #file-name-display { margin-top: 10px; font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+  <div class="header">📊 Regulatory Reporting Portal — File Operations</div>
+
+  <div class="container">
+    <h2>Upload Regulatory Filing</h2>
+    <input type="file" id="filing-upload" data-testid="filing-upload-input" accept=".csv,.xml"/>
+    <div id="file-name-display" data-testid="file-name-display"></div>
+    <button class="btn btn-primary" id="upload-btn" data-testid="upload-btn">Upload Filing</button>
+    <div id="upload-status" data-testid="upload-status"></div>
+  </div>
+
+  <div class="container">
+    <h2>Download Generated Report</h2>
+    <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Download the EMIR Q1 2024 submission summary report.</p>
+    <button class="btn btn-primary" id="download-btn" data-testid="download-btn">Download Report</button>
+  </div>
+
+  <script>
+    document.getElementById('filing-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('file-name-display').textContent = 'Selected file: ' + file.name;
+      }
+    });
+
+    document.getElementById('upload-btn').addEventListener('click', () => {
+      const fileInput = document.getElementById('filing-upload');
+      const statusDiv = document.getElementById('upload-status');
+      if (fileInput.files.length > 0) {
+        statusDiv.className = 'success';
+        statusDiv.textContent = '✅ File "' + fileInput.files[0].name + '" uploaded successfully.';
+      } else {
+        statusDiv.className = '';
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = '#f8d7da';
+        statusDiv.style.color = '#721c24';
+        statusDiv.textContent = '❌ Please select a file before uploading.';
+      }
+    });
+
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const content = 'Report ID,Report Type,Filing Period,Status\nRPT-001,EMIR,Q1 2024,Submitted';
+      const blob = new Blob([content], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'EMIR_Q1_2024_Summary.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
