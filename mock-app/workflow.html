@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Reports - Workflow Actions</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+  .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  h2 { color: #1a3c5e; margin-top: 0; }
+  .btn { padding: 9px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 8px; margin-right: 10px; }
+  .btn-primary { background: #1a3c5e; color: white; }
+  .btn-danger { background: #c0392b; color: white; }
+  iframe { width: 100%; height: 180px; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px; }
+  #approval-status { margin-top: 14px; padding: 10px 14px; border-radius: 4px; display: none; }
+  #approval-status.approved { background: #d4edda; color: #155724; display: block; }
+  #approval-status.rejected { background: #f8d7da; color: #721c24; display: block; }
+</style>
+</head>
+<body>
+  <div class="header">📊 Regulatory Reporting Portal — Workflow Actions</div>
+
+  <div class="container">
+    <h2>Report Details</h2>
+    <p style="font-size: 13px; color: #666;">Report RPT-001 (EMIR, Q1 2024) is ready for review.</p>
+    <button class="btn btn-primary" id="open-details-btn" data-testid="open-details-btn">
+      Open Full Details in New Tab
+    </button>
+  </div>
+
+  <div class="container">
+    <h2>Approve / Reject Report</h2>
+    <button class="btn btn-primary" id="approve-btn" data-testid="approve-btn">Approve Report</button>
+    <button class="btn btn-danger" id="reject-btn" data-testid="reject-btn">Reject Report</button>
+    <div id="approval-status" data-testid="approval-status"></div>
+  </div>
+
+  <div class="container">
+    <h2>Embedded Compliance Widget</h2>
+    <p style="font-size: 13px; color: #666;">External LEI validation widget (loaded in iframe):</p>
+    <iframe id="lei-widget" data-testid="lei-widget" srcdoc="
+      <html>
+      <body style='font-family: Arial; padding: 16px; margin:0;'>
+        <h4 style='margin-top:0; color:#1a3c5e;'>LEI Validator</h4>
+        <input type='text' id='lei-input' placeholder='Enter LEI code' style='padding:6px; width:70%;'/>
+        <button id='validate-btn' style='padding:6px 14px; background:#1a3c5e; color:white; border:none; border-radius:4px; margin-left:6px;'>Validate</button>
+        <div id='lei-result' style='margin-top:10px; font-size:13px;'></div>
+        <script>
+          document.getElementById('validate-btn').addEventListener('click', () => {
+            const val = document.getElementById('lei-input').value;
+            const resultDiv = document.getElementById('lei-result');
+            if (val.length === 20) {
+              resultDiv.textContent = '✅ Valid LEI format';
+              resultDiv.style.color = 'green';
+            } else {
+              resultDiv.textContent = '❌ Invalid LEI - must be 20 characters';
+              resultDiv.style.color = 'red';
+            }
+          });
+        </script>
+      </body>
+      </html>
+    "></iframe>
+  </div>
+
+  <script>
+    document.getElementById('open-details-btn').addEventListener('click', () => {
+      window.open('report-details.html', '_blank');
+    });
+
+    document.getElementById('approve-btn').addEventListener('click', () => {
+      const confirmed = confirm('Are you sure you want to approve report RPT-001?');
+      const statusDiv = document.getElementById('approval-status');
+      if (confirmed) {
+        statusDiv.className = 'approved';
+        statusDiv.textContent = '✅ Report RPT-001 has been approved.';
+      }
+    });
+
+    document.getElementById('reject-btn').addEventListener('click', () => {
+      const reason = prompt('Please provide a rejection reason for RPT-001:');
+      const statusDiv = document.getElementById('approval-status');
+      if (reason) {
+        statusDiv.className = 'rejected';
+        statusDiv.textContent = '❌ Report RPT-001 rejected. Reason: ' + reason;
+      }
+    });
+  </script>
+</body>
+</html>
