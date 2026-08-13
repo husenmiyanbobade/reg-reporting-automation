@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Reports - Async Loading Demo</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+  .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  h2 { color: #1a3c5e; margin-top: 0; }
+  .btn { padding: 9px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; background: #1a3c5e; color: white; margin-top: 8px; }
+  #filing-status { margin-top: 12px; font-size: 14px; }
+  #pending-count { font-size: 22px; font-weight: bold; color: #1a3c5e; }
+  #toast-message { margin-top: 12px; padding: 10px 14px; background: #d4edda; color: #155724; border-radius: 4px; display: none; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+  th { background: #f0f2f5; }
+</style>
+</head>
+<body>
+  <div class="header">📊 Regulatory Reporting Portal — Async Loading Demo</div>
+
+  <!-- Section 1: Dashboard count that loads AFTER page load (not in DOM initially) -->
+  <div class="container">
+    <h2>Pending Filings Dashboard</h2>
+    <p style="font-size: 13px; color: #666;">Count loads from server after page render.</p>
+    <div id="pending-count-wrapper">
+      <span id="pending-count-loading" data-testid="pending-count-loading">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Section 2: Button-triggered delayed status check -->
+  <div class="container">
+    <h2>Filing Status Check</h2>
+    <button class="btn" id="check-status-btn" data-testid="check-status-btn">Check Filing Status</button>
+    <div id="status-wrapper"></div>
+  </div>
+
+  <!-- Section 3: Toast that appears then disappears -->
+  <div class="container">
+    <h2>Submit Correction</h2>
+    <button class="btn" id="submit-correction-btn" data-testid="submit-correction-btn">Submit Correction</button>
+    <div id="toast-message" data-testid="toast-message">✅ Correction submitted successfully</div>
+  </div>
+
+  <!-- Section 4: Load more reports (delayed row insertion) -->
+  <div class="container">
+    <h2>Report History</h2>
+    <table id="history-table">
+      <thead>
+        <tr><th>Report ID</th><th>Type</th><th>Status</th></tr>
+      </thead>
+      <tbody id="history-body">
+        <tr><td>RPT-001</td><td>EMIR</td><td>Submitted</td></tr>
+      </tbody>
+    </table>
+    <button class="btn" id="load-more-btn" data-testid="load-more-btn">Load More Reports</button>
+  </div>
+
+  <script>
+    // Section 1: simulate API call populating count 1.5s after page load
+    setTimeout(() => {
+      document.getElementById('pending-count-wrapper').innerHTML =
+        '<span id="pending-count" data-testid="pending-count">7</span>';
+    }, 1500);
+
+    // Section 2: simulate slow filing status check (2s)
+    document.getElementById('check-status-btn').addEventListener('click', () => {
+      document.getElementById('status-wrapper').innerHTML =
+        '<div id="status-loading" data-testid="status-loading">Checking with regulator...</div>';
+
+      setTimeout(() => {
+        document.getElementById('status-wrapper').innerHTML =
+          '<div id="filing-status" data-testid="filing-status">✅ Filing accepted by regulator</div>';
+      }, 2000);
+    });
+
+    // Section 3: toast appears, then disappears after 1.5s
+    document.getElementById('submit-correction-btn').addEventListener('click', () => {
+      const toast = document.getElementById('toast-message');
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 1500);
+    });
+
+    // Section 4: delayed row insertion (simulate slow "load more" API)
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+      setTimeout(() => {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td>RPT-006</td><td>MiFID</td><td>Pending</td>';
+        row.setAttribute('data-testid', 'row-rpt-006');
+        document.getElementById('history-body').appendChild(row);
+      }, 1800);
+    });
+  </script>
+</body>
+</html>
