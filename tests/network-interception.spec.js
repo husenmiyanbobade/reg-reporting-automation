@@ -88,47 +88,47 @@ test.describe('Network Interception - Filing Status', () => {
     expect(capturedBody.reportId).toBe('RPT-001');
   });
 
-    test('submits filing fails and shows error message when API returns error', async ({ page }) => {
-        await page.route('**/filings/submit', async route => {
-            await route.fulfill({
-                status: 400,
-                contentType: 'application/json',
-                body: JSON.stringify({ message: 'Invalid report data' })
-            });
-        });
-
-        await page.click('[data-testid="submit-filing-btn"]');
-        const result = page.getByTestId('submit-result');
-        await expect(result).toContainText('Invalid report data');
-    });
-});    
-
-    test.describe('Network Interception - Filing Status (delayed response)', () => {
-      test('shows loading text while API is delayed and then displays final result', async ({ page }) => {
-        // Route the status API and delay the response by 2 seconds before fulfilling.
-        await page.route('**/filings/RPT-001/status', async route => {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({ status: 'Accepted', message: 'Filing validated successfully' })
-          });
-        });
-
-        // Trigger the status check in the app UI.
-        await page.click('[data-testid="check-status-btn"]');
-
-        // While the request is delayed, the UI should show a loading message.
-        const loading = page.getByText('Checking with regulator...');
-        await expect(loading).toBeVisible();
-
-        // After the delayed response completes, the final result should appear.
-        const result = page.getByTestId('status-result');
-        await expect(result).toContainText('Accepted');
-        await expect(result).toContainText('Filing validated successfully');
-
-        // The loading text should no longer be visible once the final result is shown.
-        await expect(loading).not.toBeVisible();
+  test('submits filing fails and shows error message when API returns error', async ({ page }) => {
+    await page.route('**/filings/submit', async route => {
+      await route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Invalid report data' })
       });
     });
+
+    await page.click('[data-testid="submit-filing-btn"]');
+    const result = page.getByTestId('submit-result');
+    await expect(result).toContainText('Invalid report data');
+  });
+});
+
+test.describe('Network Interception - Filing Status (delayed response)', () => {
+  test('shows loading text while API is delayed and then displays final result', async ({ page }) => {
+    // Route the status API and delay the response by 2 seconds before fulfilling.
+    await page.route('**/filings/RPT-001/status', async route => {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 'Accepted', message: 'Filing validated successfully' })
+      });
+    });
+
+    // Trigger the status check in the app UI.
+    await page.click('[data-testid="check-status-btn"]');
+
+    // While the request is delayed, the UI should show a loading message.
+    const loading = page.getByText('Checking with regulator...');
+    await expect(loading).toBeVisible();
+
+    // After the delayed response completes, the final result should appear.
+    const result = page.getByTestId('status-result');
+    await expect(result).toContainText('Accepted');
+    await expect(result).toContainText('Filing validated successfully');
+
+    // The loading text should no longer be visible once the final result is shown.
+    await expect(loading).not.toBeVisible();
+  });
+});
 

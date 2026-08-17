@@ -1,5 +1,4 @@
 const { test, expect } = require('@playwright/test');
-const { request } = require('node:http');
 
 test.describe('API Testing - Request Context', () => {
 
