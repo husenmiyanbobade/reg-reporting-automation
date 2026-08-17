@@ -130,5 +130,5 @@ test.describe('Network Interception - Filing Status', () => {
         // The loading text should no longer be visible once the final result is shown.
         await expect(loading).not.toBeVisible();
       });
-});
+    });
 
