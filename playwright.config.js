@@ -1,3 +1,8 @@
+const path = require('path');
+require('dotenv').config({
+  path: path.resolve(__dirname, `.env.${process.env.TEST_ENV || 'qa'}`)
+});
+
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
