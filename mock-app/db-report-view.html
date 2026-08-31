@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Reports - DB Report View</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+  .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); max-width: 480px; }
+  h2 { color: #1a3c5e; margin-top: 0; }
+  .field { margin-bottom: 12px; font-size: 14px; }
+  .field label { display: block; color: #666; font-size: 12px; margin-bottom: 2px; }
+  .field span { font-weight: bold; }
+</style>
+</head>
+<body>
+  <div class="header">📊 Regulatory Reporting Portal — Report Detail (DB-backed)</div>
+
+  <div class="container">
+    <h2>Report Detail</h2>
+    <div class="field"><label>Report ID</label><span data-testid="db-report-id">-</span></div>
+    <div class="field"><label>Report Type</label><span data-testid="db-report-type">-</span></div>
+    <div class="field"><label>Status</label><span data-testid="db-report-status">-</span></div>
+    <div class="field"><label>Submitted By</label><span data-testid="db-report-submitted-by">-</span></div>
+  </div>
+
+  <script>
+    // Simulates a real app reading query params after a backend DB lookup
+    const params = new URLSearchParams(window.location.search);
+    document.querySelector('[data-testid="db-report-id"]').textContent = params.get('reportId') || 'N/A';
+    document.querySelector('[data-testid="db-report-type"]').textContent = params.get('reportType') || 'N/A';
+    document.querySelector('[data-testid="db-report-status"]').textContent = params.get('status') || 'N/A';
+    document.querySelector('[data-testid="db-report-submitted-by"]').textContent = params.get('submittedBy') || 'N/A';
+  </script>
+</body>
+</html>
