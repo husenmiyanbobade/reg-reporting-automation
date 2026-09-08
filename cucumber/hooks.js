@@ -7,3 +7,7 @@ Before(async function () {
 After(async function () {
     await this.closeBrowser();
 });
+
+Before({ tags: '@dashboard' }, async function () {
+  console.log('Running dashboard-specific setup...');
+});

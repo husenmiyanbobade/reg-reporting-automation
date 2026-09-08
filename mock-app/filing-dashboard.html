@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Regulatory Reports - Filing Dashboard</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+  .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+  .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #ddd; }
+  th { color: #1a3c5e; }
+  .status-accepted { color: #155724; font-weight: bold; }
+  .status-rejected { color: #721c24; font-weight: bold; }
+  .status-pending { color: #856404; font-weight: bold; }
+</style>
+</head>
+<body>
+  <div class="header">📊 Regulatory Reporting Portal — Filing Dashboard</div>
+  <div class="container">
+    <h2>All Filings</h2>
+    <table>
+      <thead>
+        <tr><th>Report ID</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr data-testid="report-row-RPT-001">
+          <td>RPT-001</td>
+          <td class="status-accepted" data-testid="status-RPT-001">Accepted</td>
+        </tr>
+        <tr data-testid="report-row-RPT-002">
+          <td>RPT-002</td>
+          <td class="status-rejected" data-testid="status-RPT-002">Rejected</td>
+        </tr>
+        <tr data-testid="report-row-RPT-003">
+          <td>RPT-003</td>
+          <td class="status-pending" data-testid="status-RPT-003">Pending</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

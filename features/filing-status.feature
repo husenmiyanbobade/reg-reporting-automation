@@ -1,5 +1,6 @@
 Feature: Filing Status Check
 
+  @smoke
   Scenario Outline: Check filing status for different regulator responses
     Given the regulator will respond with "<mockedStatus>"
     When I check the status
