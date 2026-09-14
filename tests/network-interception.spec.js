@@ -104,6 +104,11 @@ test.describe('Network Interception - Filing Status', () => {
 });
 
 test.describe('Network Interception - Filing Status (delayed response)', () => {
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto(`${BASE_URL}/filing-status.html`);
+  });
+
   test('shows loading text while API is delayed and then displays final result', async ({ page }) => {
     // Route the status API and delay the response by 2 seconds before fulfilling.
     await page.route('**/filings/RPT-001/status', async route => {

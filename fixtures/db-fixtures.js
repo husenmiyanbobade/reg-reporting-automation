@@ -6,7 +6,7 @@ exports.test = base.test.extend({
     seededReport: async ({ }, use) => {
         const pool = await getConnection();
 
-        const testReportId = 'RPT-TEST-001';
+        const testReportId = `RPT-${Date.now().toString().slice(-6)}${Math.floor(1000 + Math.random() * 9000)}`;
 
         // SETUP — insert known test data before the test runs
 
@@ -28,7 +28,6 @@ exports.test = base.test.extend({
             .input('reportId', sql.VarChar, testReportId)
             .query('DELETE FROM FilingStatus WHERE ReportId = @reportId');
 
-        await pool.close();
     },
 
 });
