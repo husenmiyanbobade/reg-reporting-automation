@@ -18,6 +18,8 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+
+ 
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -34,6 +36,11 @@ export default defineConfig({
     ['html', { open: 'never' }],
     ['./reporters/area-summary-reporter.js']
   ],
+
+  use: {
+    trace: 'retain-on-failure',
+  },
+ 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   /* use: {
     /* Base URL to use in actions like `await page.goto('')`. */
