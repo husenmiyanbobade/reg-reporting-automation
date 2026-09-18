@@ -1,8 +1,5 @@
 const sql = require('mssql');
 
-//console.log('DEBUG - DB_SERVER seen by Playwright worker:', JSON.stringify(process.env.DB_SERVER));
-//console.log('DEBUG - DB_PORT seen by Playwright worker:', JSON.stringify(process.env.DB_PORT));
-
 
 const config = {
 
