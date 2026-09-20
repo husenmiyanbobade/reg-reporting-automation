@@ -7,6 +7,11 @@ test.describe('Waiting strategies', () => {
         await page.goto(`${BASE_URL}/async-loading.html`);
     });
 
+    // Known flaky on webkit under CI (Jenkins service, no interactive desktop session).
+    // WebKit occasionally throttles the setTimeout in async-loading.html far beyond its
+    // normal 1.5s delay, pushing waitFor() close to the 30s test timeout. Playwright's
+    // built-in retry catches this reliably. Not a locator or assertion bug — see Day 29 notes.
+    
     test('wait for pending count to appear in DOM', async ({page}) => {
         //This element does not exist in the DOM yet, so we need to wait for it to appear
         const countLocator = page.getByTestId('pending-count');
