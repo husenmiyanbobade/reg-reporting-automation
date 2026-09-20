@@ -38,6 +38,12 @@ pipeline {
             }
         }
 
+        stage('Debug test-results') {
+            steps {
+                 bat 'dir test-results'
+             }
+        }
+
         stage('Publish results') {
             steps {
                 junit 'test-results/results.xml'
