@@ -34,7 +34,8 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
-    ['./reporters/area-summary-reporter.js']
+    ['./reporters/area-summary-reporter.js'],
+    ['junit', { outputFile: 'test-results/results.xml' }]
   ],
 
   use: {
