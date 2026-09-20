@@ -3,11 +3,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        /*stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/husenmiyanbobade/reg-reporting-automation.git'
             }
-        }
+        }*/
 
         stage('Install dependencies') {
             steps {
@@ -22,6 +22,11 @@ pipeline {
         }
 
         stage('Run tests') {
+
+            options {
+                    timeout(time: 20, unit: 'MINUTES')
+                }
+
             steps {
                 withCredentials([
                     string(credentialsId: 'base-url-qa', variable: 'BASE_URL'),
@@ -33,8 +38,21 @@ pipeline {
                     string(credentialsId: 'db-user-qa', variable: 'DB_USER'),
                     string(credentialsId: 'db-password-qa', variable: 'DB_PASSWORD')
                 ]) {
-                    bat 'npx playwright test'
+                    bat script: 'npx playwright test', returnStatus: true
                 }
+            }
+        }
+
+        stage('Debug test-results') {
+            steps {
+                 bat 'dir test-results'
+             }
+        }
+
+        stage('Publish results') {
+            steps {
+                junit 'test-results/results.xml'
+                archiveArtifacts artifacts: 'playwright-report/**, test-results/**', allowEmptyArchive: true
             }
         }
     }
