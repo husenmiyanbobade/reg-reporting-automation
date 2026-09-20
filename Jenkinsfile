@@ -33,8 +33,15 @@ pipeline {
                     string(credentialsId: 'db-user-qa', variable: 'DB_USER'),
                     string(credentialsId: 'db-password-qa', variable: 'DB_PASSWORD')
                 ]) {
-                    bat 'npx playwright test'
+                    bat script: 'npx playwright test', returnStatus: true
                 }
+            }
+        }
+
+        stage('Publish results') {
+            steps {
+                junit 'test-results/results.xml'
+                archiveArtifacts artifacts: 'playwright-report/**, test-results/**', allowEmptyArchive: true
             }
         }
     }
