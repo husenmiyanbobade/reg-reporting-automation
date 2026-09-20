@@ -53,14 +53,6 @@ pipeline {
             steps {
                 junit 'test-results/results.xml'
                 archiveArtifacts artifacts: 'playwright-report/**, test-results/**', allowEmptyArchive: true
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright HTML Report'
-                ])
             }
         }
     }
