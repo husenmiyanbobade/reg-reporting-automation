@@ -56,4 +56,14 @@ pipeline {
             }
         }
     }
+
+    post {
+        failure {
+            emailext(
+                subject: "FAILED: Jenkins Build #${env.BUILD_NUMBER}",
+                body: "Build failed. Check console output: ${env.BUILD_URL}console",
+                to: 'husenmiyan.works@gmail.com'
+            )
+        }
+    }   
 }
