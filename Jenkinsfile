@@ -65,5 +65,12 @@ pipeline {
                 to: 'husenmiyan.works@gmail.com'
             )
         }
-    }   
+        fixed {
+            emailext(
+                subject: "RECOVERED: Jenkins Build #${env.BUILD_NUMBER}",
+                body: "Build is passing again after a previous failure. ${env.BUILD_URL}",
+                to: 'husenmiyan.works@gmail.com'
+            )
+        }
+    }
 }
