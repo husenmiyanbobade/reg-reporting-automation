@@ -11,7 +11,7 @@ pipeline {
 
         stage('Install dependencies') {
             steps {
-                bat 'npm install-broken-on-purpose'
+                bat 'npm install'
             }
         }
 
