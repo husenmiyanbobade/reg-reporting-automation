@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Regulatory Reports - Submit for Review</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            background: #1a3c5e;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #1a3c5e;
+            margin-top: 0;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 180px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 13px;
+            color: #444;
+        }
+
+        input,
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[readonly] {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1a3c5e;
+            color: white;
+        }
+
+        #success-message {
+            color: green;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <span>📊 Regulatory Reporting Portal - Submit Report</span>
+        <span id="logged-in-user" data-testid="logged-in-user">Welcome, Maker</span>
+    </div>
+
+    <div class="container">
+        <h2>New Report Submission</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="report-id">Report ID</label>
+                <input type="text" id="report-id" data-testid="report-id-display" readonly />
+            </div>
+            <div class="form-group">
+                <label for="report-type">Report Type</label>
+                <select id="report-type" data-testid="report-type-select">
+                    <option value="">-- Select Type --</option>
+                    <option value="EMIR">EMIR</option>
+                    <option value="MiFID">MiFID II</option>
+                    <option value="CCAR">CCAR</option>
+                    <option value="Basel">Basel III</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="from-date">From Date</label>
+                <input type="date" id="from-date" data-testid="from-date-input" />
+            </div>
+            <div class="form-group">
+                <label for="to-date">To Date</label>
+                <input type="date" id="to-date" data-testid="to-date-input" />
+            </div>
+            <div class="form-group">
+                <label for="jurisdiction">Jurisdiction</label>
+                <select id="jurisdiction" data-testid="jurisdiction-select" multiple size="4">
+                    <option value="EU">European Union</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="APAC">Asia Pacific</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="amount">Reported Amount (EUR)</label>
+                <input type="number" id="amount" data-testid="amount-input" placeholder="0.00" />
+            </div>
+        </div>
+        <button class="btn btn-primary" id="submit-review-btn" data-testid="submit-review-btn">Submit for
+            Review</button>
+        <div id="success-message" data-testid="success-message">Report submitted for review.</div>
+        <div id="error-message" data-testid="error-message" style="color:red; margin-top:15px; display:none;"></div>
+    </div>
+
+    <script>
+        const loggedInUser = sessionStorage.getItem('loggedInUser') || 'unknown';
+        document.getElementById('logged-in-user').textContent = `Welcome, ${loggedInUser}`;
+
+        // Auto-generate a Report ID
+        function generateReportId() {
+            const existing = JSON.parse(localStorage.getItem('pendingReports') || '[]');
+            const nextNum = existing.length + 6; // existing mock data goes up to RPT-005
+            return `RPT-${String(nextNum).padStart(3, '0')}`;
+        }
+        document.getElementById('report-id').value = generateReportId();
+
+        const jurisdictionsByType = {
+            'EMIR': ['EU', 'UK'],
+            'MiFID': ['EU', 'UK'],
+            'CCAR': ['US'],
+            'Basel': ['EU', 'UK', 'US', 'APAC']
+        };
+
+        document.getElementById('report-type').addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            const jurisdictionSelect = document.getElementById('jurisdiction');
+            const allOptions = jurisdictionSelect.querySelectorAll('option');
+            allOptions.forEach(option => {
+                if (!selectedType || jurisdictionsByType[selectedType]?.includes(option.value)) {
+                    option.disabled = false;
+                } else {
+                    option.disabled = true;
+                    option.selected = false;
+                }
+            });
+        });
+
+        document.getElementById('submit-review-btn').addEventListener('click', () => {
+            const reportId = document.getElementById('report-id').value;
+            const reportType = document.getElementById('report-type').value;
+            const jurisdictionSelect = document.getElementById('jurisdiction');
+            const jurisdictions = Array.from(jurisdictionSelect.selectedOptions).map(o => o.value);
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+            const amount = document.getElementById('amount').value;
+
+            const errorEl = document.getElementById('error-message');
+            const successEl = document.getElementById('success-message');
+            const errors = [];
+
+            if (!reportType) errors.push('Report type is required.');
+            if (jurisdictions.length === 0) errors.push('Select at least one jurisdiction.');
+            if (!fromDate || !toDate) errors.push('From and To dates are required.');
+            else if (toDate < fromDate) errors.push('To date cannot be before From date.');
+            if (!amount || Number(amount) <= 0) errors.push('Amount must be greater than zero.');
+
+            if (errors.length > 0) {
+                errorEl.textContent = errors.join(' ');
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                return;
+            }
+            errorEl.style.display = 'none';
+
+            const report = {
+                id: reportId,
+                type: reportType,
+                jurisdictions,
+                fromDate,
+                toDate,
+                amount,
+                status: 'Pending Review',
+                submittedBy: loggedInUser,
+                submittedAt: new Date().toISOString(),
+                auditTrail: [
+                    { action: 'Submitted for Review', by: loggedInUser, at: new Date().toISOString() }
+                ]
+            };
+
+            const existing = JSON.parse(localStorage.getItem('pendingReports') || '[]');
+            existing.push(report);
+            localStorage.setItem('pendingReports', JSON.stringify(existing));
+
+            successEl.style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>

@@ -36,14 +36,17 @@
     <script>
         const validUsers = {
             'reportadmin': 'SecurePass123',
-            'devadmin': 'DevPass456'
+            'devadmin': 'DevPass456',
+            'maker1': 'MakerPass123',
+            'checker1': 'CheckerPass123'
         };
 
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
+
             if (validUsers[username] === password) {
+                sessionStorage.setItem('loggedInUser', username);
                 document.getElementById('success-message').style.display = 'block';
                 document.getElementById('error-message').style.display = 'none';
                 setTimeout(() => {
