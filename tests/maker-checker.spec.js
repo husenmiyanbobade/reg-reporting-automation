@@ -1,3 +1,5 @@
+const ReportsPage = require('../pages/ReportsPage');
+
 const { test, expect } = require('@playwright/test');
 const LoginPage = require('../pages/LoginPage');
 const SubmitReportPage = require('../pages/SubmitReportPage');
@@ -138,5 +140,18 @@ test.describe('Maker-checker approval workflow', () => {
         await expect(submitPage.getJurisdictionOption('UK')).toBeEnabled();
         await expect(submitPage.getJurisdictionOption('US')).toBeDisabled();
         await expect(submitPage.getJurisdictionOption('APAC')).toBeDisabled();
+    });
+
+    test('clicking a status badge on the reports page opens that report\'s audit trail', async ({ page }) => {
+        await page.goto(`file://${__dirname.replace(/\\/g, '/')}/../mock-app/reports.html`);
+        const reports = new ReportsPage(page);
+        await reports.search({ reportId: 'RPT-001' });
+
+        const badge = page.getByTestId('status-RPT-001');
+        await expect(badge).toHaveAttribute('title', 'Click to view audit trail for RPT-001');
+        await badge.click();
+
+        await expect(page).toHaveURL(/audit-trail\.html\?reportId=RPT-001$/);
+        await expect(page.getByTestId('report-filter-input')).toHaveValue('RPT-001');
     });
 });
