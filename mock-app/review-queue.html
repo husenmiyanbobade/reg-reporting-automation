@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Regulatory Reports - Review Queue</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+    .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    h2 { color: #1a3c5e; margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #1a3c5e; color: white; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .btn { padding: 7px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; margin-right: 6px; }
+    .btn-approve { background: #2e7d32; color: white; }
+    .btn-reject { background: #c62828; color: white; }
+    .btn:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+    .reason-box { display: none; margin-top: 8px; }
+    .reason-box textarea { width: 100%; box-sizing: border-box; padding: 6px; font-size: 13px; }
+    #no-pending { display: none; color: #888; padding: 20px; text-align: center; }
+    [title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      margin-top: -30px;
+      margin-left: 10px;
+    }
+    [title] { position: relative; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>📊 Regulatory Reporting Portal - Review Queue</span>
+    <span id="logged-in-user" data-testid="logged-in-user">Welcome, Checker</span>
+  </div>
+
+  <div class="container">
+    <h2>Reports Pending Review</h2>
+    <table id="review-table" data-testid="review-table">
+      <thead>
+        <tr>
+          <th>Report ID</th>
+          <th>Type</th>
+          <th>Submitted By</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="review-rows"></tbody>
+    </table>
+    <div id="no-pending" data-testid="no-pending">No reports awaiting review.</div>
+  </div>
+
+  <script>
+    const loggedInUser = sessionStorage.getItem('loggedInUser') || 'unknown';
+    document.getElementById('logged-in-user').textContent = `Welcome, ${loggedInUser}`;
+
+    function getReports() {
+      return JSON.parse(localStorage.getItem('pendingReports') || '[]');
+    }
+
+    function saveReports(reports) {
+      localStorage.setItem('pendingReports', JSON.stringify(reports));
+    }
+
+    function render() {
+      const reports = getReports();
+      const pending = reports.filter(r => r.status === 'Pending Review');
+      const tbody = document.getElementById('review-rows');
+      const noPending = document.getElementById('no-pending');
+      tbody.innerHTML = '';
+
+      if (pending.length === 0) {
+        noPending.style.display = 'block';
+        return;
+      }
+      noPending.style.display = 'none';
+
+      pending.forEach(r => {
+        const isOwnReport = r.submittedBy === loggedInUser;
+        const disabledAttr = isOwnReport ? 'disabled' : '';
+        const tooltip = isOwnReport ? 'title="You cannot approve your own submission"' : '';
+
+        tbody.innerHTML += `
+          <tr data-testid="review-row-${r.id}">
+            <td>${r.id}</td>
+            <td>${r.type}</td>
+            <td>${r.submittedBy}</td>
+            <td>${r.amount}</td>
+            <td>
+              <div ${tooltip}>
+                <button class="btn btn-approve" data-testid="approve-btn-${r.id}" ${disabledAttr} onclick="approveReport('${r.id}')">Approve</button>
+                <button class="btn btn-reject" data-testid="reject-btn-${r.id}" ${disabledAttr} onclick="showRejectBox('${r.id}')">Reject</button>
+              </div>
+              <div class="reason-box" id="reason-box-${r.id}" data-testid="reason-box-${r.id}">
+                <textarea id="reason-input-${r.id}" data-testid="reason-input-${r.id}" placeholder="Reason for rejection (required)"></textarea>
+                <button class="btn btn-reject" data-testid="confirm-reject-btn-${r.id}" onclick="confirmReject('${r.id}')">Confirm Reject</button>
+              </div>
+            </td>
+          </tr>`;
+      });
+    }
+
+    function addAuditEntry(report, action) {
+      report.auditTrail = report.auditTrail || [];
+      report.auditTrail.push({ action, by: loggedInUser, at: new Date().toISOString() });
+    }
+
+    function approveReport(id) {
+      const reports = getReports();
+      const report = reports.find(r => r.id === id);
+      if (!report || report.submittedBy === loggedInUser) return; // defensive check, not just UI
+      report.status = 'Submitted';
+      addAuditEntry(report, 'Approved');
+      saveReports(reports);
+      render();
+    }
+
+    function showRejectBox(id) {
+      document.getElementById(`reason-box-${id}`).style.display = 'block';
+    }
+
+    function confirmReject(id) {
+      const reports = getReports();
+      const report = reports.find(r => r.id === id);
+      if (!report || report.submittedBy === loggedInUser) return;
+      const reason = document.getElementById(`reason-input-${id}`).value.trim();
+      if (!reason) {
+        alert('A rejection reason is required.');
+        return;
+      }
+      report.status = 'Rejected';
+      addAuditEntry(report, `Rejected: ${reason}`);
+      saveReports(reports);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

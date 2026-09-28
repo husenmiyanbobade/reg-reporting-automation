@@ -142,7 +142,7 @@
             <td>${r.type}</td>
             <td>${r.period}</td>
             <td>${r.by}</td>
-            <td><span class="badge ${badgeClass}" data-testid="status-${r.id}" title="Click to view audit trail for ${r.id}">${r.status}</span></td>
+            <td><span class="badge ${badgeClass}" data-testid="status-${r.id}" title="Click to view audit trail for ${r.id}" style="cursor:pointer" onclick="window.location.href='audit-trail.html?reportId=${r.id}'">${r.status}</span></td>
           </tr>`;
       });
     }

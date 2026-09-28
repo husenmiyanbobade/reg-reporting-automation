@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Regulatory Reports - Audit Trail</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+    .header { background: #1a3c5e; color: white; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+    .container { background: white; border-radius: 6px; padding: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    h2 { color: #1a3c5e; margin-top: 0; }
+    .form-row { margin-bottom: 16px; }
+    input, select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #1a3c5e; color: white; padding: 10px 14px; text-align: left; }
+    td { padding: 10px 14px; border-bottom: 1px solid #eee; }
+    #no-history { display: none; color: #888; padding: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>📊 Regulatory Reporting Portal - Audit Trail</span>
+  </div>
+
+  <div class="container">
+    <h2>Audit History</h2>
+    <div class="form-row">
+      <label for="report-filter">Report ID</label>
+      <input type="text" id="report-filter" data-testid="report-filter-input" placeholder="e.g. RPT-006 (leave blank for all)"/>
+    </div>
+    <table id="audit-table" data-testid="audit-table">
+      <thead>
+        <tr>
+          <th>Report ID</th>
+          <th>Action</th>
+          <th>By</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody id="audit-rows"></tbody>
+    </table>
+    <div id="no-history" data-testid="no-history">No audit history found.</div>
+  </div>
+
+  <script>
+    function getReports() {
+      return JSON.parse(localStorage.getItem('pendingReports') || '[]');
+    }
+
+    function render(filterId) {
+      const reports = getReports();
+      const filtered = filterId
+        ? reports.filter(r => r.id.toLowerCase() === filterId.toLowerCase())
+        : reports;
+
+      const entries = [];
+      filtered.forEach(r => {
+        (r.auditTrail || []).forEach(entry => {
+          entries.push({ reportId: r.id, ...entry });
+        });
+      });
+
+      // Newest first
+      entries.sort((a, b) => new Date(b.at) - new Date(a.at));
+
+      const tbody = document.getElementById('audit-rows');
+      const noHistory = document.getElementById('no-history');
+      tbody.innerHTML = '';
+
+      if (entries.length === 0) {
+        noHistory.style.display = 'block';
+        return;
+      }
+      noHistory.style.display = 'none';
+
+      entries.forEach(e => {
+        tbody.innerHTML += `
+          <tr data-testid="audit-row-${e.reportId}">
+            <td>${e.reportId}</td>
+            <td>${e.action}</td>
+            <td>${e.by}</td>
+            <td>${new Date(e.at).toLocaleString()}</td>
+          </tr>`;
+      });
+    }
+
+    // Pre-fill filter from URL query param, e.g. audit-trail.html?reportId=RPT-006
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialFilter = urlParams.get('reportId') || '';
+    document.getElementById('report-filter').value = initialFilter;
+
+    document.getElementById('report-filter').addEventListener('input', (e) => {
+      render(e.target.value.trim());
+    });
+
+    render(initialFilter);
+  </script>
+</body>
+</html>
